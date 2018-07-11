@@ -218,7 +218,7 @@ if __name__ == '__main__':
     keywords = ['donald trump', 'trump', 'us president', 'potus']
 
     # Set the output directory name for twitter data
-    twitter_raw_data_path = 'C:/Users/midul/Documents/Twitter_Data'
+    twitter_raw_data_path = '/home/m3jacob/cs846/'
 
     tweet_extractor = TweetExtractor(eoi)
 
