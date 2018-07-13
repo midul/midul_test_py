@@ -22,6 +22,8 @@ from nltk.corpus import stopwords
 #
 # print(wordsFiltered)
 
+import csv
+
 def follow(thefile):
     thefile.seek(0,2)
     while True:
@@ -39,27 +41,36 @@ def unique_list(l):
 
 
 if __name__ == '__main__':
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
     #logfile = open("/home/m3jacob/cs846/eoi/eoi/data_live.json","r")
     #loglines = follow(logfile)
 
     #f = open("/home/m3jacob/cs846/eoi/data_live.json", "w+")
     my_list = [""]
-    with open("/home/m3jacob/cs846/eoi/data_live.json") as f_in:
+    my_list2 = [""]
+    sid = SentimentIntensityAnalyzer()
+    with open("C:/Users/midul/Documents/Twitter_Data/eoi/data_live_temp_test.json") as f_in:
         lines = (line.rstrip() for line in f_in)  # All lines including the blank ones
         lines = (line for line in lines if line)  # Non-blank lines
+        file_test = open('test.csv', 'w')
         for line in lines:
             resp_dict = json.loads(line)
             if 'text' in resp_dict:
                 line = resp_dict['text']
                 ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", line).split())
+                id = resp_dict['id']
+                lati = resp_dict['latitude']
+                longi = resp_dict['longitude']
+                timestamp = resp_dict['timestamp']
+
                 from nltk.tokenize import sent_tokenize, word_tokenize
                 from nltk.corpus import stopwords
 
                 data = line
                 data = data.lower()
-                stopWords = set(stopwords.words('english'))
-                additional_stopwords = """, ! $ # & * : ) ( [ ] ; 👍"""
-                #stopWords += additional_stopwords.split()
+                stopWords = stopwords.words('english')
+                additional_stopwords = """, ! $ # & * : ) ( [ ] ; 👍 🎮 """
+                stopWords += additional_stopwords.split()
                 words = word_tokenize(data)
                 wordsFiltered = []
                 for w in words:
@@ -107,11 +118,29 @@ if __name__ == '__main__':
                 line = line.replace("\r", "")
                 line = line.replace("\n", "")
                 wordsFiltered = line.split()
+                ss = sid.polarity_scores(line)
+                score = ss['compound'];
+                if score > -0.3 and score < 0.3:
+                    score = 0
+                elif score > 0.3:
+                    score = 1
+                else:
+                    score = -1
+
+                line2 = str(id) + "," + str(score) + "," + str(lati) + "," + str(longi) + "," + str(timestamp)
+                file_test.write(line2)
+                file_test.write('\n')
+                my_list2.append(line2)
                 my_list.append(line)
 
                 # print(wordsFiltered)
                 # print(line)  # "ns1:timeSeriesResponseType"
-    print(my_list)
+    print(my_list2)
+    # with open("test.csv", 'w') as file_test:
+    #     writer = csv.writer(file_test)
+    #     writer.writerows(my_list2)
+
+    file_test.close()
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
     sentences = [""]
