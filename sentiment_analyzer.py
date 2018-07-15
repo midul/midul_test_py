@@ -7,6 +7,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from googletrans import Translator
 
 
+# identify the list of unique words in line
 def unique_list(l):
     temp_unique_list = []
     [temp_unique_list.append(x) for x in l if x not in temp_unique_list]
@@ -14,8 +15,6 @@ def unique_list(l):
 
 
 if __name__ == '__main__':
-    my_list = [""]
-    my_list2 = [""]
     sid = SentimentIntensityAnalyzer()
     translator = Translator()
     input_file = str(sys.argv[1])
@@ -28,13 +27,6 @@ if __name__ == '__main__':
         resp_dict = json.loads(line)
         if 'text' in resp_dict:
             line = resp_dict['text']
-            emoji_pattern = re.compile("["
-                                       u"\U0001F600-\U0001F64F"  # emoticons
-                                       u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-                                       u"\U0001F680-\U0001F6FF"  # transport & map symbols
-                                       u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                                       "]+", flags=re.UNICODE)
-            line = (emoji_pattern.sub(r'', line))  # no emoji
             temp_unique_id = resp_dict['id']
             latitude = resp_dict['latitude']
             longitude = resp_dict['longitude']
@@ -64,7 +56,9 @@ if __name__ == '__main__':
             line = ' '.join(unique_list(wordsFiltered))
             line = line.replace("\r", "")
             line = line.replace("\n", "")
+            # vader sentiment analyzer
             ss = sid.polarity_scores(line)
+            # converting to absolute values
             score = ss['compound']
             if -0.3 < score < 0.3:
                 score = 0
